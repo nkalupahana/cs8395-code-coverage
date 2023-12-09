@@ -19,6 +19,9 @@ raw_prompt = json.loads(open("config.json").read())["prompt"]
 prompt = PromptTemplate.from_template(raw_prompt)
 
 for function in tqdm(glob.glob("functions/*/*/*/*.py")):
+    if "test_" in function:
+        continue
+
     path_obj = Path(function)
     test_folder = path_obj.parent.parent / f"test_{path_obj.parent.stem}"
     if not test_folder.exists():

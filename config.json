@@ -4,5 +4,5 @@
     "run_test": "python3 generate_tests.py",
     "run_score": "bash check_coverage.bash",
     "tags": ["codecov", "testing", "python"],
-    "prompt": "Generate tests in Python (compatible with pytest) that produce 100% code coverage. Output only Python code and nothing else before or after. \n ```py\n{code}\n```"
+    "prompt": "Generate tests in Python (compatible with pytest) that produce 100% code coverage. Output only Python code and nothing else before or after. Do not import the function in the generated tests. \n ```py\n{code}\n```"
 }

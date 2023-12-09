@@ -1,11 +1,9 @@
 from pathlib import Path
 import glob
+import shutil
 
-for function in glob.glob("functions/*/*/*/*.py"):
-    print(function)
+for function in glob.glob("functions/*/*/*"):
     path_obj = Path(function)
-    filename = path_obj.stem
-    test_path = path_obj.parent / f"test_{filename}.py"
-
-    if test_path.exists():
-        test_path.unlink()
+    if "test_" in path_obj.stem:
+        # delete folder and all contents in one function call
+        shutil.rmtree(path_obj)
