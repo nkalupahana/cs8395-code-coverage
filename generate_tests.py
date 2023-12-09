@@ -1,5 +1,7 @@
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
+from pathlib import Path
+from tqdm import tqdm
 
 import argparse
 import glob
@@ -16,17 +18,26 @@ llm = get_llm(args.model)
 raw_prompt = json.loads(open("config.json").read())["prompt"]
 prompt = PromptTemplate.from_template(raw_prompt)
 
-for function in itertools.chain(glob.glob("functions/*.py")):
-    if "__init__" in function:
+for function in tqdm(glob.glob("functions/*/*/*/*.py")):
+    path_obj = Path(function)
+    test_folder = path_obj.parent.parent / f"test_{path_obj.parent.stem}"
+    if not test_folder.exists():
+        test_folder.mkdir(parents=True, exist_ok=True)
+
+    test_path = test_folder / f"test_{path_obj.stem}.py"
+    if test_path.exists():
+        print(f"Skipping {function}, test already exists.")
         continue
 
-    filename = function.replace("functions/", "").replace(".py", "")
-    if os.path.isfile(f"tests/test_{filename}.py"):
-        print(f"Skipping {filename}, test already exists.")
-        continue
+    test_init_path = test_folder / "__init__.py"
+    if not test_init_path.exists():
+        test_init_path.touch()
+
+    init_path = path_obj.parent / "__init__.py"
+    if not init_path.exists():
+        init_path.touch()
 
     # Get code and create prompt
-    print(f"Generating test for {function}.")
     with open(function) as f:
         code = f.read()
     code_prompt = prompt.format(code=code)
@@ -34,8 +45,8 @@ for function in itertools.chain(glob.glob("functions/*.py")):
     # Generate tests and clean up output
     output = llm.predict(code_prompt)
     output = output.replace("```python", "").replace("```py", "").replace("```", "").strip()
-    output = f"from functions.{filename} import {filename}\n" + output
+    output = f"from ..{path_obj.parent.stem}.{path_obj.stem} import {path_obj.stem}\n\n" + output
 
     # Write out final code
-    with open(f"tests/test_{filename}.py", "w") as f:
+    with open(test_path, "w") as f:
         f.write(output)
