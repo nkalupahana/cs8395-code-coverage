@@ -19,7 +19,7 @@ raw_prompt = json.loads(open("config.json").read())["prompt"]
 prompt = PromptTemplate.from_template(raw_prompt)
 
 for function in tqdm(glob.glob("functions/*/*/*/*.py")):
-    if "test_" in function:
+    if "test_" in function or "__init__" in function:
         continue
 
     path_obj = Path(function)

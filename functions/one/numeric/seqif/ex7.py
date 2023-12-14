@@ -1,4 +1,5 @@
 def ex7(num):
+  result = num
   if num > 0:
     result = num + 5
   if result > 10:

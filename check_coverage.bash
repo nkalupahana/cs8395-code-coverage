@@ -1,5 +1,9 @@
 #!/bin/bash
-export PYTHONPATH=$PYTHONPATH:$(pwd)
-pytest --cov=functions tests/
+cd functions/one
+pytest --cov=. --junitxml=output.xml
 coverage json
-cat coverage.json | jq "{\"output\": .totals.percent_covered}" > output.json
+cd ../two
+pytest --cov=. --junitxml=output.xml
+coverage json
+cd ../../
+python3 parse_coverage.py
